@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur Interactif Assembleur MAP32 - Tous les Exercices</title>
+<style>
+    :root {
+        --bg-main: #121212;
+        --bg-panel: #1e1e1e;
+        --bg-box: #2d2d2d;
+        --text-main: #e0e0e0;
+        --accent-blue: #0288d1;
+        --accent-blue-light: #4fc3f7;
+        --accent-green: #43a047;
+        --accent-green-light: #81c784;
+        --accent-red: #d84315;
+        --accent-red-light: #ff8a65;
+        --accent-yellow: #fbc02d;
+    }
+    
+    body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        background: var(--bg-main); 
+        color: var(--text-main); 
+        margin: 0; 
+        padding: 20px; 
+    }
+    h1 { text-align: center; color: var(--accent-blue-light); margin-bottom: 5px; }
+    .subtitle { text-align: center; color: #aaa; margin-bottom: 25px; }
+    
+    .nav-bar {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+    .nav-btn {
+        background: var(--bg-box);
+        border: 2px solid #555;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .nav-btn:hover { background: #444; }
+    .nav-btn.active {
+        background: var(--accent-blue);
+        border-color: var(--accent-blue-light);
+        box-shadow: 0 0 10px rgba(79, 195, 247, 0.4);
+    }
+    .nav-btn.doc-btn {
+        background: #4527a0;
+        border-color: #b39ddb;
+    }
+    .nav-btn.doc-btn.active {
+        background: #512da8;
+        box-shadow: 0 0 10px rgba(179, 157, 219, 0.6);
+    }
+
+    .container { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 20px; 
+        max-width: 1200px; 
+        margin: 0 auto; 
+    }
+    .panel { 
+        background: var(--bg-panel); 
+        padding: 25px; 
+        border-radius: 12px; 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5); 
+        flex: 1; 
+        min-width: 320px; 
+    }
+    h3 { 
+        margin-top: 0; 
+        color: var(--accent-green-light); 
+        border-bottom: 2px solid #444; 
+        padding-bottom: 10px; 
+        display: flex; 
+        align-items: center; 
+        gap: 10px;
+    }
+    
+    /* Code Instructions */
+    .instruction { 
+        padding: 12px 15px; 
+        margin: 8px 0; 
+        border-radius: 6px; 
+        background: var(--bg-box); 
+        border: 1px solid #444; 
+        font-family: 'Consolas', monospace; 
+        font-size: 1.1em;
+        transition: all 0.3s ease; 
+        position: relative;
+        display: none;
+    }
+    .instruction.show { display: block; }
+    .instruction.active { 
+        background: var(--accent-blue); 
+        color: white; 
+        border-color: var(--accent-blue-light); 
+        transform: translateX(15px); 
+        box-shadow: -6px 0px 0px var(--accent-blue-light); 
+        font-weight: bold;
+    }
+    .inst-label { color: #aaa; font-size: 0.8em; margin-right: 10px; display: inline-block; width: 40px; }
+    
+    /* Grids */
+    .grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
+        gap: 15px; 
+        margin-bottom: 25px;
+    }
+    .box { 
+        padding: 15px 10px; 
+        background: var(--bg-box); 
+        border-radius: 8px; 
+        text-align: center; 
+        font-family: 'Consolas', monospace; 
+        font-size: 1.1em; 
+        border: 2px solid transparent;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        display: none;
+        position: relative;
+    }
+    .box.show { display: block; }
+    .box span { font-weight: bold; color: var(--accent-blue-light); display: block; margin-top: 8px; font-size: 1.4em;}
+    
+    /* Animations & Highlights */
+    .box.changed { 
+        background: #1b5e20; 
+        border-color: var(--accent-green-light); 
+        transform: scale(1.1); 
+        box-shadow: 0 0 20px rgba(129, 199, 132, 0.6);
+        z-index: 10;
+    }
+    .box.read {
+        background: #bf360c;
+        border-color: var(--accent-red-light);
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(255, 138, 101, 0.5);
+    }
+    
+    /* Flags specific */
+    .flag-box { font-size: 0.9em; padding: 10px; }
+    .flag-box span { font-size: 1.2em; color: var(--accent-yellow); }
+    
+    /* Controls */
+    .controls { 
+        text-align: center; 
+        margin: 25px 0; 
+        padding: 20px;
+        background: var(--bg-panel);
+        border-radius: 10px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+    button { 
+        padding: 12px 24px; 
+        font-size: 16px; 
+        font-weight: bold; 
+        cursor: pointer; 
+        background: var(--accent-blue); 
+        color: white; 
+        border: none; 
+        border-radius: 6px; 
+        margin: 0 10px;
+        transition: 0.2s;
+    }
+    button:hover { background: #0277bd; transform: translateY(-2px); }
+    button:disabled { background: #444; color: #888; cursor: not-allowed; transform: none; }
+    .btn-reset { background: #c62828; }
+    .btn-reset:hover { background: #b71c1c; }
+
+    /* Explications */
+    .explanation { 
+        margin-top: 20px; 
+        padding: 20px; 
+        background: #263238; 
+        border-left: 6px solid var(--accent-blue-light); 
+        font-size: 1.15em; 
+        line-height: 1.6;
+        border-radius: 0 8px 8px 0;
+        min-height: 100px;
+    }
+    .exp-title { color: var(--accent-yellow); font-weight: bold; margin-bottom: 10px; display: block; }
+    .arrow-icon { margin: 0 5px; color: var(--accent-red-light); }
+    .write-icon { margin: 0 5px; color: var(--accent-green-light); }
+
+    /* Documentation Section */
+    .doc-block {
+        background: var(--bg-box);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #b39ddb;
+    }
+    .doc-block h4 { margin-top: 0; color: #b39ddb; font-size: 1.2em;}
+    .syntax-box {
+        font-family: 'Consolas', monospace;
+        font-size: 1.3em;
+        background: #111;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+        margin: 15px 0;
+    }
+    .c-op { color: #4fc3f7; font-weight: bold; } /* Bleu - Opcode */
+    .c-mod { color: #fbc02d; } /* Jaune - Mode */
+    .c-dst { color: #81c784; } /* Vert - Destination */
+    .c-src { color: #ff8a65; } /* Rouge - Source */
+    
+    .doc-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .doc-table th, .doc-table td { padding: 10px; border-bottom: 1px solid #444; text-align: left; }
+    .doc-table th { color: #aaa; }
+    .doc-table tr:hover { background: #333; }
+</style>
+</head>
+<body>
+
+<h1>Simulateur Interactif Assembleur MAP32</h1>
+<div class="subtitle">Visualisation pas à pas de la mémoire, des registres et des indicateurs (Flags)</div>
+
+<!-- Navigation des exercices -->
+<div class="nav-bar">
+    <button class="nav-btn doc-btn active" onclick="loadExercise('doc')" id="tab-doc">📖 Guide & Instructions</button>
+    <button class="nav-btn" onclick="loadExercise('ex1')" id="tab-ex1">Exercice 1 : Adressage</button>
+    <button class="nav-btn" onclick="loadExercise('ex2')" id="tab-ex2">Exercice 2 : Boucle & Tableau</button>
+    <button class="nav-btn" onclick="loadExercise('ex3')" id="tab-ex3">Exercice 3 : Débordement</button>
+    <button class="nav-btn" onclick="loadExercise('ex4')" id="tab-ex4">Exercice 4 : Flags & Sauts</button>
+</div>
+
+<!-- Contrôles -->
+<div class="controls" id="controls-bar" style="display:none;">
+    <button onclick="prevStep()" id="btn-prev" disabled>🡄 Étape Précédente</button>
+    <button onclick="nextStep()" id="btn-next">Étape Suivante 🡆</button>
+    <button onclick="reset()" class="btn-reset">↺ Réinitialiser l'exercice</button>
+</div>
+
+<!-- CONTENEUR DU GUIDE (DOC) -->
+<div id="doc-container" class="container">
+    <div class="panel" style="flex: 1 1 100%;">
+        <h3 style="color: #b39ddb; border-bottom-color: #4527a0;">🔍 Sens de lecture et Syntaxe MAP32</h3>
+        
+        <div class="doc-block">
+            <h4>1. La règle d'or de l'Assembleur</h4>
+            <p>En MAP32 (et dans la plupart des assembleurs), une ligne de code se lit presque toujours de gauche à droite. Le format général est le suivant :</p>
+            
+            <div class="syntax-box">
+                <span class="c-op">[ACTION]</span> <span class="c-mod">[MODE]</span> <span class="c-dst">[DESTINATION]</span> <span class="c-src">[SOURCE]</span>
+            </div>
+            <p>
+                <span class="c-op">■ ACTION (Opcode) :</span> Ce que le processeur doit faire (Charger, Additionner, Sauter...).<br>
+                <span class="c-mod">■ MODE :</span> Comment le processeur doit comprendre les adresses (Est-ce une adresse exacte ? Une valeur directe ?).<br>
+                <span class="c-dst">■ DESTINATION :</span> <b>Où</b> le résultat sera sauvegardé (Généralement un registre, sauf pour STORE).<br>
+                <span class="c-src">■ SOURCE :</span> Avec <b>quoi</b> on fait l'opération (Une donnée en mémoire, une valeur immédiate).
+            </p>
+            <div style="background: #222; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                <i>Exemple :</i> <span class="c-op">ADD</span> <span class="c-mod">Rg2</span> <span class="c-dst">R0</span> <span class="c-src">R1</span> ➔ On <span class="c-op">Additionne</span> (en mode <span class="c-mod">2 Registres</span>) le contenu de <span class="c-src">R1</span> dans la destination <span class="c-dst">R0</span> (R0 = R0 + R1).
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div class="doc-block" style="flex: 1; min-width: 300px;">
+                <h4>2. Lexique des Modes d'Adressage (<span class="c-mod">MODE</span>)</h4>
+                <table class="doc-table">
+                    <tr><th>Code</th><th>Signification</th><th>Description</th></tr>
+                    <tr><td><b class="c-mod">Im</b></td><td>Immédiat</td><td>La SOURCE est une valeur brute (Ex: <code>LOAD Im R1 <b>1002</b></code>).</td></tr>
+                    <tr><td><b class="c-mod">D</b></td><td>Direct</td><td>La SOURCE est une adresse mémoire exacte (Ex: <code>... R0 <b>400</b></code> ➔ Lit la case 400).</td></tr>
+                    <tr><td><b class="c-mod">I</b></td><td>Indirect</td><td>La SOURCE est une adresse qui contient <i>une autre adresse</i>. C'est un pointeur de pointeur.</td></tr>
+                    <tr><td><b class="c-mod">B</b></td><td>Basé</td><td>Adresse cible = Registre de Base (RB) + La SOURCE (Le déplacement).</td></tr>
+                    <tr><td><b class="c-mod">Rg1/Rg2</b></td><td>Registre</td><td>Opération impliquant 1 ou 2 registres internes.</td></tr>
+                </table>
+            </div>
+
+            <div class="doc-block" style="flex: 1; min-width: 300px;">
+                <h4>3. Lexique des Actions (<span class="c-op">ACTION</span>)</h4>
+                <table class="doc-table">
+                    <tr><th>Instruction</th><th>Description</th></tr>
+                    <tr><td><b class="c-op">LOAD</b></td><td><b>Lire :</b> Copie une donnée depuis la mémoire vers un Registre CPU.</td></tr>
+                    <tr><td><b class="c-op">STORE</b></td><td><b>Écrire :</b> Prend le contenu d'un registre et le sauvegarde dans la Mémoire RAM. <br><i style="color:#aaa; font-size:0.9em;">(Attention: Pour STORE, la destination est écrite à la fin de l'instruction)</i></td></tr>
+                    <tr><td><b class="c-op">ADD</b></td><td>Additionne la source à la destination.</td></tr>
+                    <tr><td><b class="c-op">NEG</b></td><td>Transforme un nombre positif en négatif (Complément à 2).</td></tr>
+                    <tr><td><b class="c-op">JMP</b></td><td><b>Jump :</b> Saute directement à une ligne ou une étiquette (Boucle).</td></tr>
+                    <tr><td><b class="c-op">JMPZ / JMPO</b></td><td>Saut Conditionnel : Saute UNIQUEMENT si Zéro (Z) ou Overflow (O) est activé.</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CONTENEUR DE LA SIMULATION (EXERCICES) -->
+<div id="sim-container" class="container" style="display:none;">
+    <!-- Panneau du Code -->
+    <div class="panel">
+        <h3>💻 Code Assembleur</h3>
+        <div id="code-container">
+            <!-- Instructions Ex 1 -->
+            <div id="ex1-0" class="instruction ex1"><span class="inst-label"></span><span class="c-op">LOAD</span> <span class="c-mod">D</span> <span class="c-dst">R0</span> <span class="c-src">400</span></div>
+            <div id="ex1-1" class="instruction ex1"><span class="inst-label"></span><span class="c-op">LOAD</span> <span class="c-mod">Im</span> <span class="c-dst">R1</span> <span class="c-src">1002</span></div>
+            <div id="ex1-2" class="instruction ex1"><span class="inst-label"></span><span class="c-op">ADD</span> <span class="c-mod">Rg2</span> <span class="c-dst">R0</span> <span class="c-src">R1</span></div>
+            <div id="ex1-3" class="instruction ex1"><span class="inst-label"></span><span class="c-op">NEG</span> <span class="c-mod">Rg1</span> <span class="c-dst">R1</span></div>
+            <div id="ex1-4" class="instruction ex1"><span class="inst-label"></span><span class="c-op">ADD</span> <span class="c-mod">I</span> <span class="c-dst">R1</span> <span class="c-src">404</span></div>
+            <div id="ex1-5" class="instruction ex1"><span class="inst-label"></span><span class="c-op">STORE</span> <span class="c-mod">B</span> <span class="c-src">R1</span> <span class="c-dst">900</span></div>
+
+            <!-- Instructions Ex 2 -->
+            <div id="ex2-0" class="instruction ex2"><span class="inst-label"></span>LOAD Im R1 6</div>
+            <div id="ex2-1" class="instruction ex2"><span class="inst-label"></span>LOAD Im R0 0</div>
+            <div id="ex2-2" class="instruction ex2"><span class="inst-label"></span>LOAD I RB 1028</div>
+            <div id="ex2-3" class="instruction ex2"><span class="inst-label">Boucle:</span>LOAD B R2 4</div>
+            <div id="ex2-4" class="instruction ex2"><span class="inst-label"></span>ADD Rg2 R0 R2</div>
+            <div id="ex2-5" class="instruction ex2"><span class="inst-label"></span>ADD Im RB 4</div>
+            <div id="ex2-6" class="instruction ex2"><span class="inst-label"></span>ADD D R1 1032</div>
+            <div id="ex2-7" class="instruction ex2"><span class="inst-label"></span>JMPZ Fin</div>
+            <div id="ex2-8" class="instruction ex2"><span class="inst-label"></span>JMP Boucle</div>
+            <div id="ex2-9" class="instruction ex2"><span class="inst-label">Fin:</span>STORE B R0 16</div>
+
+            <!-- Instructions Ex 3 -->
+            <div id="ex3-0" class="instruction ex3"><span class="inst-label">0</span>LOAD D R1 1000</div>
+            <div id="ex3-1" class="instruction ex3"><span class="inst-label">4</span>ADD Im R1 1</div>
+            <div id="ex3-2" class="instruction ex3"><span class="inst-label">8</span>JMPO 20</div>
+            <div id="ex3-3" class="instruction ex3"><span class="inst-label">12</span>JMP 8</div>
+            <div id="ex3-4" class="instruction ex3"><span class="inst-label">20</span>STORE I R1 24</div>
+            <div id="ex3-5" class="instruction ex3"><span class="inst-label">24</span>0 (Donnée)</div>
+
+            <!-- Instructions Ex 4 -->
+            <div id="ex4-0" class="instruction ex4"><span class="inst-label"></span>IN D A</div>
+            <div id="ex4-1" class="instruction ex4"><span class="inst-label"></span>LOAD Im R1 -1</div>
+            <div id="ex4-2" class="instruction ex4"><span class="inst-label"></span>LOAD D R2 A</div>
+            <div id="ex4-3" class="instruction ex4"><span class="inst-label">Add:</span>ADD Rg2 R2 R1</div>
+            <div id="ex4-4" class="instruction ex4"><span class="inst-label"></span>JMPO Overflow</div>
+            <div id="ex4-5" class="instruction ex4"><span class="inst-label"></span>JMP Fin</div>
+            <div id="ex4-7" class="instruction ex4"><span class="inst-label">OverF:</span>STORE D R2 B</div>
+            <div id="ex4-6" class="instruction ex4"><span class="inst-label">Fin:</span>STORE D R2 A</div>
+            <div id="ex4-8" class="instruction ex4"><span class="inst-label"></span>STOP</div>
+        </div>
+        
+        <div class="explanation" id="explanation-text">
+            Sélectionnez un exercice et cliquez sur "Étape Suivante" pour lancer la simulation.<br><br>
+            <span style="color:#ff8a65">■ Rouge</span> = Mémoire/Registre LU (Source)<br>
+            <span style="color:#81c784">■ Vert</span> = Mémoire/Registre ÉCRIT (Destination)
+        </div>
+    </div>
+    
+    <!-- Panneau de l'Architecture -->
+    <div class="panel">
+        <h3>🔄 Registres (CPU)</h3>
+        <div class="grid">
+            <div class="box ex1 ex2" id="reg-R0">R0 <span id="val-R0">0</span></div>
+            <div class="box ex1 ex2 ex3 ex4" id="reg-R1">R1 <span id="val-R1">0</span></div>
+            <div class="box ex2 ex4" id="reg-R2">R2 <span id="val-R2">0</span></div>
+            <div class="box ex1 ex2" id="reg-RB">RB <span id="val-RB">100</span></div>
+        </div>
+        
+        <h3 class="ex3 ex4" style="display:none;" id="title-flags">🚩 Indicateurs d'état (PSW)</h3>
+        <div class="grid ex3 ex4" style="display:none;" id="grid-flags">
+            <div class="box flag-box ex4" id="flag-Z">Z (Zero) <span id="val-Z">0</span></div>
+            <div class="box flag-box ex4" id="flag-S">S (Sign) <span id="val-S">0</span></div>
+            <div class="box flag-box ex4" id="flag-C">C (Carry) <span id="val-C">0</span></div>
+            <div class="box flag-box ex3 ex4" id="flag-O">O (Overflow) <span id="val-O">0</span></div>
+        </div>
+        
+        <h3 style="margin-top: 15px;">🧠 Mémoire RAM</h3>
+        <div class="grid">
+            <!-- Mem Ex 1 -->
+            <div class="box ex1" id="mem-400">@400 <span id="val-400">2000</span></div>
+            <div class="box ex1" id="mem-404">@404 <span id="val-404">412</span></div>
+            <div class="box ex1" id="mem-412">@412 <span id="val-412">3000</span></div>
+            
+            <!-- Mem Ex 2 -->
+            <div class="box ex2" id="mem-1000">@1000 <span id="val-1000">15</span></div>
+            <div class="box ex2" id="mem-1020">@1020 <span id="val-1020">256</span></div>
+            <div class="box ex2" id="mem-1024">@1024 <span id="val-1024">996</span></div>
+            <div class="box ex2" id="mem-1028">@1028 <span id="val-1028">1024</span></div>
+            <div class="box ex2" id="mem-1032">@1032 <span id="val-1032">-1</span></div>
+            <div class="box ex2" id="mem-1036">@1036 <span id="val-1036">?</span></div>
+            
+            <!-- Mem Ex 3 -->
+            <div class="box ex3" id="mem-0">@0 <span id="val-0">?</span></div>
+            <div class="box ex3" id="mem-24">@24 <span id="val-24">0</span></div>
+            <div class="box ex3" id="mem-1000-ex3">@1000 <span id="val-1000-ex3">2147483645</span></div>
+
+            <!-- Mem Ex 4 -->
+            <div class="box ex4" id="mem-A">Case A <span id="val-A">?</span></div>
+            <div class="box ex4" id="mem-B">Case B <span id="val-B">?</span></div>
+            
+            <!-- Mem Partagée -->
+            <div class="box ex1" id="mem-1000-ex1">@1000 <span id="val-1000-ex1">?</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let step = 0;
+    let currentExercise = 'doc';
+    let historyState = [];
+    let currentSteps = [];
+
+    const initialStates = {
+        ex1: { 'val-R0': '0', 'val-R1': '0', 'val-RB': '100', 'val-400': '2000', 'val-404': '412', 'val-412': '3000', 'val-1000-ex1': '?' },
+        ex2: { 'val-R0': '0', 'val-R1': '0', 'val-R2': '0', 'val-RB': '0', 'val-1000': '15', 'val-1020': '256', 'val-1024': '996', 'val-1028': '1024', 'val-1032': '-1', 'val-1036': '?' },
+        ex3: { 'val-R1': '0', 'val-0': '?', 'val-24': '0', 'val-1000-ex3': '2147483645', 'val-O': '0' },
+        ex4: { 'val-R1': '0', 'val-R2': '0', 'val-A': '?', 'val-B': '?', 'val-Z': '0', 'val-O': '0', 'val-C': '0', 'val-S': '0' }
+    };
+
+    const stepsData = {
+        ex1: [
+            { instId: 'ex1-0', read: ['mem-400'], write: 'reg-R0', writeValId: 'val-R0', writeVal: '2000', exp: "<span class='exp-title'>LOAD D R0 400</span><i>Adressage direct.</i><br>Le processeur lit la mémoire à l'adresse 400 <span class='arrow-icon'>➔</span> place la valeur dans R0." },
+            { instId: 'ex1-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '1002', exp: "<span class='exp-title'>LOAD Im R1 1002</span><i>Adressage immédiat.</i><br>La constante 1002 est injectée directement dans le registre R1." },
+            { instId: 'ex1-2', read: ['reg-R1'], write: 'reg-R0', writeValId: 'val-R0', writeVal: '3002', exp: "<span class='exp-title'>ADD Rg2 R0 R1</span><i>Addition.</i><br>R0 (2000) + R1 (1002) = 3002 <span class='write-icon'>➔</span> R0." },
+            { instId: 'ex1-3', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '-1002', exp: "<span class='exp-title'>NEG Rg1 R1</span><i>Négation binaire (Complément à 2).</i><br>1002 devient -1002." },
+            { instId: 'ex1-4', read: ['mem-404', 'mem-412'], write: 'reg-R1', writeValId: 'val-R1', writeVal: '1998', exp: "<span class='exp-title'>ADD I R1 404</span><i>Adressage indirect.</i><br>On lit l'adresse en 404 (412) <span class='arrow-icon'>➔</span> on lit le contenu de 412 (3000) <span class='arrow-icon'>➔</span> on l'ajoute à R1 (-1002 + 3000 = 1998)." },
+            { instId: 'ex1-5', read: ['reg-RB', 'reg-R1'], write: 'mem-1000-ex1', writeValId: 'val-1000-ex1', writeVal: '1998', exp: "<span class='exp-title'>STORE B R1 900</span><i>Adressage basé.</i><br>Adresse cible = Déplacement (900) + RB (100) = 1000. <br>R1 (1998) est écrit en @1000." }
+        ],
+        ex2: [
+            { instId: 'ex2-0', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '6', exp: "<span class='exp-title'>LOAD Im R1 6</span>Initialise le compteur de boucle à 6." },
+            { instId: 'ex2-1', read: [], write: 'reg-R0', writeValId: 'val-R0', writeVal: '0', exp: "<span class='exp-title'>LOAD Im R0 0</span>Initialise l'accumulateur (somme) à 0." },
+            { instId: 'ex2-2', read: ['mem-1028', 'mem-1024'], write: 'reg-RB', writeValId: 'val-RB', writeVal: '996', exp: "<span class='exp-title'>LOAD I RB 1028</span><i>Adressage Indirect.</i><br>Lit la case 1028 (1024), puis la case 1024 (996) <span class='write-icon'>➔</span> RB = 996." },
+            { instId: 'ex2-3', read: ['reg-RB', 'mem-1000'], write: 'reg-R2', writeValId: 'val-R2', writeVal: '15', exp: "<span class='exp-title'>Boucle: LOAD B R2 4</span>R2 = mémoire[ RB(996) + 4 ] = mémoire[1000] = 15." },
+            { instId: 'ex2-4', read: ['reg-R2'], write: 'reg-R0', writeValId: 'val-R0', writeVal: '15', exp: "<span class='exp-title'>ADD Rg2 R0 R2</span>R0 = R0 (0) + R2 (15) = 15." },
+            { instId: 'ex2-5', read: [], write: 'reg-RB', writeValId: 'val-RB', writeVal: '1000', exp: "<span class='exp-title'>ADD Im RB 4</span>Incrémente le pointeur de base RB." },
+            { instId: 'ex2-6', read: ['mem-1032'], write: 'reg-R1', writeValId: 'val-R1', writeVal: '5', exp: "<span class='exp-title'>ADD D R1 1032</span>Décrémente le compteur : R1 = 6 + (-1) = 5." },
+            { instId: 'ex2-7', read: ['reg-R1'], write: null, exp: "<span class='exp-title'>JMPZ Fin</span>R1 n'est pas zéro. Pas de saut." },
+            { instId: 'ex2-8', read: [], write: null, exp: "<span class='exp-title'>JMP Boucle</span>Fin de l'itération 1, on reboucle." },
+            { special: 'fastForward', stateUpdate: { 'val-R0': '1335', 'val-R1': '1', 'val-RB': '1016' }, exp: "<span class='exp-title'>[ ... Avance Rapide ... ]</span>Les itérations 2, 3, 4 et 5 s'exécutent. Le compteur R1 descend à 1." },
+            { instId: 'ex2-3', read: ['reg-RB', 'mem-1020'], write: 'reg-R2', writeValId: 'val-R2', writeVal: '256', exp: "<span class='exp-title'>Boucle (Dernière itération): LOAD B R2 4</span>R2 = mémoire[ RB(1016) + 4 ] = 256." },
+            { instId: 'ex2-4', read: ['reg-R2'], write: 'reg-R0', writeValId: 'val-R0', writeVal: '1591', exp: "<span class='exp-title'>ADD Rg2 R0 R2</span>R0 = ancienne_somme (1335) + 256 = 1591." },
+            { instId: 'ex2-5', read: [], write: 'reg-RB', writeValId: 'val-RB', writeVal: '1020', exp: "<span class='exp-title'>ADD Im RB 4</span>RB pointe sur 1020." },
+            { instId: 'ex2-6', read: ['mem-1032'], write: 'reg-R1', writeValId: 'val-R1', writeVal: '0', exp: "<span class='exp-title'>ADD D R1 1032</span>R1 = 1 + (-1) = 0. <b>Le Flag ZERO (Z) passe à 1 !</b>" },
+            { instId: 'ex2-7', read: ['reg-R1'], write: null, exp: "<span class='exp-title'>JMPZ Fin</span>Le compteur est à 0. Le saut conditionnel est déclenché vers 'Fin'." },
+            { instId: 'ex2-9', read: ['reg-R0', 'reg-RB'], write: 'mem-1036', writeValId: 'val-1036', writeVal: '1591', exp: "<span class='exp-title'>Fin: STORE B R0 16</span>Stocke la somme finale (1591) à l'adresse cible = RB (1020) + 16 = 1036." }
+        ],
+        ex3: [
+            { instId: 'ex3-0', read: ['mem-1000-ex3'], write: 'reg-R1', writeValId: 'val-R1', writeVal: '2147483645', exp: "<span class='exp-title'>LOAD D R1 1000</span>On charge dans R1 une valeur très proche de la limite maximale." },
+            { instId: 'ex3-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '2147483646', exp: "<span class='exp-title'>ADD Im R1 1</span>On incrémente R1." },
+            { instId: 'ex3-2', read: ['flag-O'], write: null, exp: "<span class='exp-title'>JMPO 20</span>Pas d'overflow (O=0). Pas de saut." },
+            { instId: 'ex3-3', read: [], write: null, exp: "<span class='exp-title'>JMP 8</span>Retour à l'incrémentation." },
+            { instId: 'ex3-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '2147483647', exp: "<span class='exp-title'>ADD Im R1 1</span>R1 atteint sa capacité <b>positive maximale</b> binaire." },
+            { instId: 'ex3-2', read: ['flag-O'], write: null, exp: "<span class='exp-title'>JMPO 20</span>Toujours pas d'overflow." },
+            { instId: 'ex3-3', read: [], write: null, exp: "<span class='exp-title'>JMP 8</span>Retour..." },
+            { instId: 'ex3-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '-2147483648', flagsUpdate: {'O': '1'}, exp: "<span class='exp-title'>ADD Im R1 1</span><b>💥 DÉPASSEMENT DE CAPACITÉ !</b><br>Ajouter 1 fait déborder le bit de signe. L'indicateur <b>Overflow (O)</b> passe à 1." },
+            { instId: 'ex3-2', read: ['flag-O'], write: null, exp: "<span class='exp-title'>JMPO 20</span>Le flag O vaut 1 ! Le saut conditionnel s'active vers l'adresse 20." },
+            { instId: 'ex3-4', read: ['reg-R1', 'mem-24'], write: 'mem-0', writeValId: 'val-0', writeVal: '-2147483648', exp: "<span class='exp-title'>STORE I R1 24</span><i>Adressage Indirect.</i><br>On écrit la valeur négative dans la case mémoire 0." }
+        ],
+        ex4: [
+            { instId: 'ex4-0', read: [], write: 'mem-A', writeValId: 'val-A', writeVal: '-128', exp: "<span class='exp-title'>IN D A</span>L'utilisateur saisit au clavier la valeur -128. Stockée dans A." },
+            { instId: 'ex4-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '-1', exp: "<span class='exp-title'>LOAD Im R1 -1</span>R1 est initialisé à -1." },
+            { instId: 'ex4-2', read: ['mem-A'], write: 'reg-R2', writeValId: 'val-R2', writeVal: '-128', exp: "<span class='exp-title'>LOAD D R2 A</span>On copie la valeur saisie (-128) dans R2." },
+            { instId: 'ex4-3', read: ['reg-R1'], write: 'reg-R2', writeValId: 'val-R2', writeVal: '127', flagsUpdate: {'C': '1', 'O': '1', 'Z': '0', 'S': '0'}, exp: "<span class='exp-title'>ADD Rg2 R2 R1</span><b>Opération : -128 + (-1)</b><br>Underflow ➔ reboucle vers le maximum positif : +127.<br><b>Flags :</b> Retenue générée (C=1), Signe inversé ➔ Overflow (O=1)." },
+            { instId: 'ex4-4', read: ['flag-O'], write: null, exp: "<span class='exp-title'>JMPO Overflow</span>Puisque O=1, l'erreur est détectée et on saute au label 'OverF'." },
+            { instId: 'ex4-7', read: ['reg-R2'], write: 'mem-B', writeValId: 'val-B', writeVal: '127', exp: "<span class='exp-title'>OverF: STORE D R2 B</span>On stocke le résultat en erreur dans B." },
+            { instId: 'ex4-6', read: ['reg-R2'], write: 'mem-A', writeValId: 'val-A', writeVal: '127', exp: "<span class='exp-title'>Fin: STORE D R2 A</span>La routine finale s'exécute." },
+            { instId: 'ex4-8', read: [], write: null, exp: "<span class='exp-title'>STOP</span>Fin de l'exécution." }
+        ]
+    };
+
+    function loadExercise(exId) {
+        currentExercise = exId;
+        
+        // Reset nav styles
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('tab-' + exId).classList.add('active');
+        
+        // Handle Documentation View
+        if (exId === 'doc') {
+            document.getElementById('sim-container').style.display = 'none';
+            document.getElementById('controls-bar').style.display = 'none';
+            document.getElementById('doc-container').style.display = 'flex';
+            return;
+        } 
+        
+        // Handle Simulation Views
+        document.getElementById('doc-container').style.display = 'none';
+        document.getElementById('sim-container').style.display = 'flex';
+        document.getElementById('controls-bar').style.display = 'block';
+
+        // Filter elements per exercise
+        document.querySelectorAll('.instruction').forEach(el => el.classList.remove('show'));
+        document.querySelectorAll('.instruction.' + exId).forEach(el => el.classList.add('show'));
+        
+        document.querySelectorAll('.box').forEach(el => el.classList.remove('show'));
+        document.querySelectorAll('.box.' + exId).forEach(el => el.classList.add('show'));
+        
+        if (exId === 'ex3' || exId === 'ex4') {
+            document.getElementById('title-flags').style.display = 'block';
+            document.getElementById('grid-flags').style.display = 'grid';
+        } else {
+            document.getElementById('title-flags').style.display = 'none';
+            document.getElementById('grid-flags').style.display = 'none';
+        }
+        
+        currentSteps = stepsData[exId];
+        reset();
+    }
+
+    function saveState() {
+        let state = {};
+        Object.keys(initialStates[currentExercise]).forEach(key => {
+            let el = document.getElementById(key);
+            if(el) state[key] = el.innerText;
+        });
+        historyState.push(state);
+    }
+
+    function clearHighlights() {
+        document.querySelectorAll('.instruction').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.box').forEach(el => {
+            el.classList.remove('changed');
+            el.classList.remove('read');
+        });
+    }
+
+    function nextStep() {
+        if (step >= currentSteps.length) return;
+        saveState();
+        clearHighlights();
+        
+        let current = currentSteps[step];
+        if (current.instId) {
+            document.getElementById(current.instId).classList.add('active');
+        }
+        if (current.read) {
+            current.read.forEach(id => {
+                if(document.getElementById(id)) document.getElementById(id).classList.add('read');
+            });
+        }
+        if (current.special === 'fastForward') {
+            Object.keys(current.stateUpdate).forEach(key => {
+                let el = document.getElementById(key);
+                if (el) {
+                    el.innerText = current.stateUpdate[key];
+                    el.parentElement.classList.add('changed');
+                }
+            });
+            document.getElementById('explanation-text').innerHTML = current.exp;
+            step++;
+            updateButtons();
+            return;
+        }
+        setTimeout(() => {
+            if (current.write && current.writeValId) {
+                let valEl = document.getElementById(current.writeValId);
+                let boxEl = document.getElementById(current.write);
+                if(valEl && boxEl) {
+                    valEl.innerText = current.writeVal;
+                    boxEl.classList.add('changed');
+                }
+            }
+            if (current.flagsUpdate) {
+                Object.keys(current.flagsUpdate).forEach(fKey => {
+                    let fVal = document.getElementById('val-' + fKey);
+                    let fBox = document.getElementById('flag-' + fKey);
+                    if(fVal && fBox) {
+                        fVal.innerText = current.flagsUpdate[fKey];
+                        fBox.classList.add('changed');
+                    }
+                });
+            }
+        }, 350); 
+        
+        document.getElementById('explanation-text').innerHTML = current.exp;
+        step++;
+        updateButtons();
+    }
+
+    function prevStep() {
+        if (step <= 0) return;
+        step--;
+        
+        let prevState = historyState.pop();
+        Object.keys(prevState).forEach(key => {
+            let el = document.getElementById(key);
+            if(el) el.innerText = prevState[key];
+        });
+        
+        clearHighlights();
+        if (step > 0) {
+            let previous = currentSteps[step - 1];
+            if(previous.instId) document.getElementById(previous.instId).classList.add('active');
+            document.getElementById('explanation-text').innerHTML = previous.exp;
+            if (previous.write) {
+                let boxEl = document.getElementById(previous.write);
+                if(boxEl) boxEl.classList.add('changed');
+            }
+            if (previous.flagsUpdate) {
+                Object.keys(previous.flagsUpdate).forEach(fKey => {
+                    let fBox = document.getElementById('flag-' + fKey);
+                    if(fBox) fBox.classList.add('changed');
+                });
+            }
+        } else {
+            document.getElementById('explanation-text').innerHTML = 'Sélectionnez un exercice et cliquez sur "Étape Suivante" pour lancer la simulation.<br><br><span style="color:#ff8a65">■ Rouge</span> = Mémoire/Registre LU (Source)<br><span style="color:#81c784">■ Vert</span> = Mémoire/Registre ÉCRIT (Destination)';
+        }
+        updateButtons();
+    }
+
+    function reset() {
+        step = 0;
+        historyState.length = 0;
+        clearHighlights();
+        
+        let init = initialStates[currentExercise];
+        Object.keys(init).forEach(key => {
+            let el = document.getElementById(key);
+            if(el) el.innerText = init[key];
+        });
+        
+        document.getElementById('explanation-text').innerHTML = 'Sélectionnez un exercice et cliquez sur "Étape Suivante" pour lancer la simulation.<br><br><span style="color:#ff8a65">■ Rouge</span> = Mémoire/Registre LU (Source)<br><span style="color:#81c784">■ Vert</span> = Mémoire/Registre ÉCRIT (Destination)';
+        updateButtons();
+    }
+
+    function updateButtons() {
+        document.getElementById('btn-next').disabled = (step >= currentSteps.length);
+        document.getElementById('btn-prev').disabled = (step <= 0);
+    }
+
+    // Initialisation au chargement sur la page de Doc
+    window.onload = () => {
+        loadExercise('doc');
+    };
+</script>
+</body>
+</html>
