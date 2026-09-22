@@ -236,7 +236,8 @@
     <button class="nav-btn" onclick="loadExercise('ex1')" id="tab-ex1">Exercice 1 : Adressage</button>
     <button class="nav-btn" onclick="loadExercise('ex2')" id="tab-ex2">Exercice 2 : Boucle & Tableau</button>
     <button class="nav-btn" onclick="loadExercise('ex3')" id="tab-ex3">Exercice 3 : Débordement</button>
-    <button class="nav-btn" onclick="loadExercise('ex4')" id="tab-ex4">Exercice 4 : Flags & Sauts</button>
+    <button class="nav-btn" onclick="loadExercise('ex4a')" id="tab-ex4a">Exercice 4 : Programme initial (Q1)</button>
+    <button class="nav-btn" onclick="loadExercise('ex4')" id="tab-ex4">Exercice 4 (Q3) : Overflow → B</button>
 </div>
 
 <!-- Contrôles -->
@@ -332,7 +333,17 @@
             <div id="ex3-4" class="instruction ex3"><span class="inst-label">20</span>STORE I R1 24</div>
             <div id="ex3-5" class="instruction ex3"><span class="inst-label">24</span>0 (Donnée)</div>
 
-            <!-- Instructions Ex 4 -->
+            <!-- Instructions Ex 4a (Programme initial, Question 1) -->
+            <div id="ex4a-0" class="instruction ex4a"><span class="inst-label"></span>IN D A</div>
+            <div id="ex4a-1" class="instruction ex4a"><span class="inst-label"></span>LOAD Im R1 -1</div>
+            <div id="ex4a-2" class="instruction ex4a"><span class="inst-label"></span>LOAD D R2 A</div>
+            <div id="ex4a-3" class="instruction ex4a"><span class="inst-label"></span>JMP Addition</div>
+            <div id="ex4a-4" class="instruction ex4a"><span class="inst-label">Fin:</span>STORE D R2 A</div>
+            <div id="ex4a-5" class="instruction ex4a"><span class="inst-label"></span>STOP</div>
+            <div id="ex4a-6" class="instruction ex4a"><span class="inst-label">Addition:</span>ADD Rg2 R2 R1</div>
+            <div id="ex4a-7" class="instruction ex4a"><span class="inst-label"></span>JMP Fin</div>
+
+            <!-- Instructions Ex 4 (réponse Question 3 : overflow -> stockage dans B) -->
             <div id="ex4-0" class="instruction ex4"><span class="inst-label"></span>IN D A</div>
             <div id="ex4-1" class="instruction ex4"><span class="inst-label"></span>LOAD Im R1 -1</div>
             <div id="ex4-2" class="instruction ex4"><span class="inst-label"></span>LOAD D R2 A</div>
@@ -356,17 +367,17 @@
         <h3>🔄 Registres (CPU)</h3>
         <div class="grid">
             <div class="box ex1 ex2" id="reg-R0">R0 <span id="val-R0">0</span></div>
-            <div class="box ex1 ex2 ex3 ex4" id="reg-R1">R1 <span id="val-R1">0</span></div>
-            <div class="box ex2 ex4" id="reg-R2">R2 <span id="val-R2">0</span></div>
+            <div class="box ex1 ex2 ex3 ex4 ex4a" id="reg-R1">R1 <span id="val-R1">0</span></div>
+            <div class="box ex2 ex4 ex4a" id="reg-R2">R2 <span id="val-R2">0</span></div>
             <div class="box ex1 ex2" id="reg-RB">RB <span id="val-RB">100</span></div>
         </div>
         
-        <h3 class="ex3 ex4" style="display:none;" id="title-flags">🚩 Indicateurs d'état (PSW)</h3>
-        <div class="grid ex3 ex4" style="display:none;" id="grid-flags">
-            <div class="box flag-box ex4" id="flag-Z">Z (Zero) <span id="val-Z">0</span></div>
-            <div class="box flag-box ex4" id="flag-S">S (Sign) <span id="val-S">0</span></div>
-            <div class="box flag-box ex4" id="flag-C">C (Carry) <span id="val-C">0</span></div>
-            <div class="box flag-box ex3 ex4" id="flag-O">O (Overflow) <span id="val-O">0</span></div>
+        <h3 class="ex3 ex4 ex4a" style="display:none;" id="title-flags">🚩 Indicateurs d'état (PSW)</h3>
+        <div class="grid ex3 ex4 ex4a" style="display:none;" id="grid-flags">
+            <div class="box flag-box ex4 ex4a" id="flag-Z">Z (Zero) <span id="val-Z">0</span></div>
+            <div class="box flag-box ex4 ex4a" id="flag-S">S (Sign) <span id="val-S">0</span></div>
+            <div class="box flag-box ex4 ex4a" id="flag-C">C (Carry) <span id="val-C">0</span></div>
+            <div class="box flag-box ex3 ex4 ex4a" id="flag-O">O (Overflow) <span id="val-O">0</span></div>
         </div>
         
         <h3 style="margin-top: 15px;">🧠 Mémoire RAM</h3>
@@ -387,11 +398,11 @@
             <!-- Mem Ex 3 -->
             <div class="box ex3" id="mem-0">@0 <span id="val-0">?</span></div>
             <div class="box ex3" id="mem-24">@24 <span id="val-24">0</span></div>
-            <div class="box ex3" id="mem-1000-ex3">@1000 <span id="val-1000-ex3">2147483645</span></div>
+            <div class="box ex3" id="mem-1000-ex3">@1000 <span id="val-1000-ex3">2147483640</span></div>
 
             <!-- Mem Ex 4 -->
-            <div class="box ex4" id="mem-A">Case A <span id="val-A">?</span></div>
-            <div class="box ex4" id="mem-B">Case B <span id="val-B">?</span></div>
+            <div class="box ex4 ex4a" id="mem-A">Case A <span id="val-A">?</span></div>
+            <div class="box ex4 ex4a" id="mem-B">Case B <span id="val-B">?</span></div>
             
             <!-- Mem Partagée -->
             <div class="box ex1" id="mem-1000-ex1">@1000 <span id="val-1000-ex1">?</span></div>
@@ -408,7 +419,8 @@
     const initialStates = {
         ex1: { 'val-R0': '0', 'val-R1': '0', 'val-RB': '100', 'val-400': '2000', 'val-404': '412', 'val-412': '3000', 'val-1000-ex1': '?' },
         ex2: { 'val-R0': '0', 'val-R1': '0', 'val-R2': '0', 'val-RB': '0', 'val-1000': '15', 'val-1020': '256', 'val-1024': '996', 'val-1028': '1024', 'val-1032': '-1', 'val-1036': '?' },
-        ex3: { 'val-R1': '0', 'val-0': '?', 'val-24': '0', 'val-1000-ex3': '2147483645', 'val-O': '0' },
+        ex3: { 'val-R1': '0', 'val-0': '?', 'val-24': '0', 'val-1000-ex3': '2147483640', 'val-O': '0' },
+        ex4a: { 'val-R1': '0', 'val-R2': '0', 'val-A': '?', 'val-B': '?', 'val-Z': '0', 'val-O': '0', 'val-C': '0', 'val-S': '0' },
         ex4: { 'val-R1': '0', 'val-R2': '0', 'val-A': '?', 'val-B': '?', 'val-Z': '0', 'val-O': '0', 'val-C': '0', 'val-S': '0' }
     };
 
@@ -431,25 +443,36 @@
             { instId: 'ex2-6', read: ['mem-1032'], write: 'reg-R1', writeValId: 'val-R1', writeVal: '5', exp: "<span class='exp-title'>ADD D R1 1032</span>Décrémente le compteur : R1 = 6 + (-1) = 5." },
             { instId: 'ex2-7', read: ['reg-R1'], write: null, exp: "<span class='exp-title'>JMPZ Fin</span>R1 n'est pas zéro. Pas de saut." },
             { instId: 'ex2-8', read: [], write: null, exp: "<span class='exp-title'>JMP Boucle</span>Fin de l'itération 1, on reboucle." },
-            { special: 'fastForward', stateUpdate: { 'val-R0': '1335', 'val-R1': '1', 'val-RB': '1016' }, exp: "<span class='exp-title'>[ ... Avance Rapide ... ]</span>Les itérations 2, 3, 4 et 5 s'exécutent. Le compteur R1 descend à 1." },
+            { special: 'fastForward', stateUpdate: { 'val-R0': '1601', 'val-R1': '1', 'val-RB': '1016' }, exp: "<span class='exp-title'>[ ... Avance Rapide ... ]</span>Les itérations 2, 3, 4 et 5 s'exécutent. Le compteur R1 descend à 1." },
             { instId: 'ex2-3', read: ['reg-RB', 'mem-1020'], write: 'reg-R2', writeValId: 'val-R2', writeVal: '256', exp: "<span class='exp-title'>Boucle (Dernière itération): LOAD B R2 4</span>R2 = mémoire[ RB(1016) + 4 ] = 256." },
-            { instId: 'ex2-4', read: ['reg-R2'], write: 'reg-R0', writeValId: 'val-R0', writeVal: '1591', exp: "<span class='exp-title'>ADD Rg2 R0 R2</span>R0 = ancienne_somme (1335) + 256 = 1591." },
+            { instId: 'ex2-4', read: ['reg-R2'], write: 'reg-R0', writeValId: 'val-R0', writeVal: '1857', exp: "<span class='exp-title'>ADD Rg2 R0 R2</span>R0 = ancienne_somme (1601) + 256 = 1857." },
             { instId: 'ex2-5', read: [], write: 'reg-RB', writeValId: 'val-RB', writeVal: '1020', exp: "<span class='exp-title'>ADD Im RB 4</span>RB pointe sur 1020." },
             { instId: 'ex2-6', read: ['mem-1032'], write: 'reg-R1', writeValId: 'val-R1', writeVal: '0', exp: "<span class='exp-title'>ADD D R1 1032</span>R1 = 1 + (-1) = 0. <b>Le Flag ZERO (Z) passe à 1 !</b>" },
             { instId: 'ex2-7', read: ['reg-R1'], write: null, exp: "<span class='exp-title'>JMPZ Fin</span>Le compteur est à 0. Le saut conditionnel est déclenché vers 'Fin'." },
-            { instId: 'ex2-9', read: ['reg-R0', 'reg-RB'], write: 'mem-1036', writeValId: 'val-1036', writeVal: '1591', exp: "<span class='exp-title'>Fin: STORE B R0 16</span>Stocke la somme finale (1591) à l'adresse cible = RB (1020) + 16 = 1036." }
+            { instId: 'ex2-9', read: ['reg-R0', 'reg-RB'], write: 'mem-1036', writeValId: 'val-1036', writeVal: '1857', exp: "<span class='exp-title'>Fin: STORE B R0 16</span>Stocke la somme finale (1857) à l'adresse cible = RB (1020) + 16 = 1036." }
         ],
         ex3: [
-            { instId: 'ex3-0', read: ['mem-1000-ex3'], write: 'reg-R1', writeValId: 'val-R1', writeVal: '2147483645', exp: "<span class='exp-title'>LOAD D R1 1000</span>On charge dans R1 une valeur très proche de la limite maximale." },
-            { instId: 'ex3-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '2147483646', exp: "<span class='exp-title'>ADD Im R1 1</span>On incrémente R1." },
+            { instId: 'ex3-0', read: ['mem-1000-ex3'], write: 'reg-R1', writeValId: 'val-R1', writeVal: '2147483640', exp: "<span class='exp-title'>LOAD D R1 1000</span>On charge dans R1 la valeur 2147483640 (2³¹ - 8), très proche de la limite maximale." },
+            { instId: 'ex3-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '2147483641', exp: "<span class='exp-title'>ADD Im R1 1</span>On incrémente R1 (1ᵉʳ passage)." },
             { instId: 'ex3-2', read: ['flag-O'], write: null, exp: "<span class='exp-title'>JMPO 20</span>Pas d'overflow (O=0). Pas de saut." },
             { instId: 'ex3-3', read: [], write: null, exp: "<span class='exp-title'>JMP 8</span>Retour à l'incrémentation." },
-            { instId: 'ex3-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '2147483647', exp: "<span class='exp-title'>ADD Im R1 1</span>R1 atteint sa capacité <b>positive maximale</b> binaire." },
+            { special: 'fastForward', stateUpdate: { 'val-R1': '2147483646' }, exp: "<span class='exp-title'>[ ... Avance Rapide ... ]</span>Les passages 2 à 6 s'exécutent (JMPO ne se déclenche jamais). R1 passe à 2147483646." },
+            { instId: 'ex3-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '2147483647', exp: "<span class='exp-title'>ADD Im R1 1</span>R1 atteint sa capacité <b>positive maximale</b> binaire (7ᵉ passage)." },
             { instId: 'ex3-2', read: ['flag-O'], write: null, exp: "<span class='exp-title'>JMPO 20</span>Toujours pas d'overflow." },
             { instId: 'ex3-3', read: [], write: null, exp: "<span class='exp-title'>JMP 8</span>Retour..." },
-            { instId: 'ex3-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '-2147483648', flagsUpdate: {'O': '1'}, exp: "<span class='exp-title'>ADD Im R1 1</span><b>💥 DÉPASSEMENT DE CAPACITÉ !</b><br>Ajouter 1 fait déborder le bit de signe. L'indicateur <b>Overflow (O)</b> passe à 1." },
+            { instId: 'ex3-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '-2147483648', flagsUpdate: {'O': '1'}, exp: "<span class='exp-title'>ADD Im R1 1</span><b>💥 DÉPASSEMENT DE CAPACITÉ !</b><br>Ajouter 1 fait déborder le bit de signe (8ᵉ passage). L'indicateur <b>Overflow (O)</b> passe à 1." },
             { instId: 'ex3-2', read: ['flag-O'], write: null, exp: "<span class='exp-title'>JMPO 20</span>Le flag O vaut 1 ! Le saut conditionnel s'active vers l'adresse 20." },
             { instId: 'ex3-4', read: ['reg-R1', 'mem-24'], write: 'mem-0', writeValId: 'val-0', writeVal: '-2147483648', exp: "<span class='exp-title'>STORE I R1 24</span><i>Adressage Indirect.</i><br>On écrit la valeur négative dans la case mémoire 0." }
+        ],
+        ex4a: [
+            { instId: 'ex4a-0', read: [], write: 'mem-A', writeValId: 'val-A', writeVal: '1', exp: "<span class='exp-title'>IN D A</span>L'utilisateur saisit au clavier la valeur 1. Stockée dans A." },
+            { instId: 'ex4a-1', read: [], write: 'reg-R1', writeValId: 'val-R1', writeVal: '-1', exp: "<span class='exp-title'>LOAD Im R1 -1</span>R1 est initialisé à -1." },
+            { instId: 'ex4a-2', read: ['mem-A'], write: 'reg-R2', writeValId: 'val-R2', writeVal: '1', exp: "<span class='exp-title'>LOAD D R2 A</span>On copie la valeur saisie (1) dans R2." },
+            { instId: 'ex4a-3', read: [], write: null, exp: "<span class='exp-title'>JMP Addition</span>Saut inconditionnel vers l'étiquette 'Addition'." },
+            { instId: 'ex4a-6', read: ['reg-R1'], write: 'reg-R2', writeValId: 'val-R2', writeVal: '0', flagsUpdate: {'C': '1', 'O': '0', 'Z': '1', 'S': '0'}, exp: "<span class='exp-title'>Addition: ADD Rg2 R2 R1</span><b>Opération : 1 + (-1) = 0</b><br><b>Flags :</b> Résultat nul (Z=1), retenue générée (C=1), pas de dépassement de signe (O=0)." },
+            { instId: 'ex4a-7', read: [], write: null, exp: "<span class='exp-title'>JMP Fin</span>Retour à l'étiquette 'Fin'." },
+            { instId: 'ex4a-4', read: ['reg-R2'], write: 'mem-A', writeValId: 'val-A', writeVal: '0', exp: "<span class='exp-title'>Fin: STORE D R2 A</span>Le résultat (0) est écrit dans A. <i>Ce programme initial écrit toujours dans A, quel que soit le résultat — il n'y a pas encore de gestion de l'overflow (voir Question 3).</i>" },
+            { instId: 'ex4a-5', read: [], write: null, exp: "<span class='exp-title'>STOP</span>Fin de l'exécution." }
         ],
         ex4: [
             { instId: 'ex4-0', read: [], write: 'mem-A', writeValId: 'val-A', writeVal: '-128', exp: "<span class='exp-title'>IN D A</span>L'utilisateur saisit au clavier la valeur -128. Stockée dans A." },
@@ -490,7 +513,7 @@
         document.querySelectorAll('.box').forEach(el => el.classList.remove('show'));
         document.querySelectorAll('.box.' + exId).forEach(el => el.classList.add('show'));
         
-        if (exId === 'ex3' || exId === 'ex4') {
+        if (exId === 'ex3' || exId === 'ex4' || exId === 'ex4a') {
             document.getElementById('title-flags').style.display = 'block';
             document.getElementById('grid-flags').style.display = 'grid';
         } else {
